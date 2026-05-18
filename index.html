@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Kuis Coding & AI X PPLG</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h2 {
+            color: #1a73e8;
+            text-align: center;
+            margin-top: 0;
+        }
+        .header-info {
+            text-align: center;
+            font-size: 14px;
+            color: #5f6368;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .student-tag {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #3c4043;
+        }
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #dadce0;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover {
+            background-color: #e8f0fe;
+            border-color: #1a73e8;
+        }
+        .footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #5f6368;
+        }
+        .screen {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .login-screen, .score-screen {
+            text-align: center;
+        }
+        .input-group {
+            margin: 25px 0;
+        }
+        .input-group input {
+            width: 80%;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            outline: none;
+            text-align: center;
+        }
+        .input-group input:focus {
+            border-color: #1a73e8;
+        }
+        .start-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .start-btn:hover {
+            background-color: #1557b0;
+        }
+        .score-big {
+            font-size: 54px;
+            font-weight: bold;
+            color: #1a73e8;
+            margin: 20px 0;
+        }
+        .lock-notice {
+            color: #d93025;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="header-info">
+        <strong>SMK NEGERI 1 LINTAU BUO KAB. TANAH DATAR</strong><br>
+        Mata Pelajaran: Coding dan AI (X PPLG)
+    </div>
+
+    <div id="login-screen" class="screen active login-screen">
+        <h3>Selamat Datang di Game Kuis!</h3>
+        <p>Silakan masukkan nama kamu sebelum memulai kuis.</p>
+        <div class="input-group">
+            <input type="text" id="student-name-input" placeholder="Ketik Nama Lengkap Kamu..." autocomplete="off">
+        </div>
+        <button class="start-btn" onclick="startQuiz()">Mulai Game 🚀</button>
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <div class="student-tag">👤 Siswa: <span id="display-student-name">Nama</span></div>
+        <div class="question" id="question-text">Memuat soal...</div>
+        <div class="options-container" id="options-text"></div>
+        <div class="footer">
+            <span id="question-number">Soal 1 dari 25</span>
+            <span id="current-score">Skor: 0</span>
+        </div>
+    </div>
+
+    <div id="score-screen" class="screen score-screen">
+        <h2>ASESMEN SELESAI 🎉</h2>
+        <p style="font-size: 18px;">Selamat, <strong id="final-student-name" style="color: #1a73e8;">Nama</strong>!</p>
+        <p>Kamu telah menyelesaikan seluruh soal dengan nilai akhir:</p>
+        <div class="score-big" id="final-score-text">0 / 100</div>
+        <p id="feedback-text">Feedback game...</p>
+        <div class="lock-notice">🔒 HP ini sudah berpartisipasi. Jawaban Anda telah tersimpan dan tidak bisa mengulang lagi.</div>
+    </div>
+</div>
+
+<script>
+    // DATA SOAL BERDASARKAN FILE "X PPLG Coding AI.docx"
+    const quizData = [
+        { q: "Sekumpulan data yang tersimpan seacra sistematis dan dapat diolah disebut dengan....", a: ["Program", "Database", "Hardware", "Brainware", "Jaringan"], correct: 1 },
+        { q: "Perangkat lunak yang digunakan untuk mengelola basis data adalah......", a: ["DBMS", "Compiler", "Browser", "Editor", "Driver"], correct: 0 },
+        { q: "Contoh aplikasi DBMS adalah.......", a: ["Microsoft Word", "CorelDraw", "MySQL", "Paint", "Sublime Text"], correct: 2 },
+        { q: "Baris pada tabel basis data disebut dengan......", a: ["Field", "Record", "Kolom", "Data", "Sheet"], correct: 1 },
+        { q: "Kolom pada tabel pada basis data disebut dengan......", a: ["Record", "Data", "Field", "Query", "Relasi"], correct: 2 },
+        { q: "Kunci utama yang digunakan untuk membedakan data satu dengan lainnya disebut dengan.......", a: ["Foreign Key", "Candidate Key", "Primary Key", "Alternate Key", "Super Key"], correct: 2 },
+        { q: "Perintah SQL untuk menampilkan data adalah.......", a: ["Insert", "Update", "Delete", "Select", "Drop"], correct: 3 },
+        { q: "Perintah SQL untuk menambah data pada tabel adalah.......", a: ["Insert Into", "Update Table", "Delete From", "Select * From", "Drop Database"], correct: 0 },
+        { q: "Perintah SQL untuk menghapus data pada tabel adalah.......", a: ["Insert", "Update", "Delete", "Select", "Drop"], correct: 2 },
+        { q: "Hubungan antar tabel dalam basis data disebut dengan........", a: ["Field", "Record", "Relasi", "Query", "Form"], correct: 2 },
+        { q: "Bahasa standar yang digunakan dalam basis data adalah........", a: ["HTML", "PHP", "SQL", "JAVA", "Python"], correct: 2 },
+        { q: "Perintah SQL untuk mengubah struktur table adalah.......", a: ["Modify", "Change", "Update", "Alter", "Insert"], correct: 3 },
+        { q: "Jenis relasi satu ke banyak disebut dengan....", a: ["One to One", "Many to Many", "One to Many", "Many to One", "One to All"], correct: 2 },
+        { q: "Program Microsoft Excel diigunakan untuk....", a: ["Mengolah Gambar", "Mengolah Angka", "Mengolah Video", "Mengolah Kata", "Mengolah Anismasi"], correct: 1 },
+        { q: "File Microsoft Excel memiliki ekstensi.....", a: [".docx", ".pptx", ".xlsx", ".txt", ".pdf"], correct: 2 },
+        { q: "Pertemuan antara baris dan kolom disebut.....", a: ["Range", "Cell", "Sheet", "Workbook", "Formula"], correct: 1 },
+        { q: "Rumus dalam excel selalu diawali dengan tanda.....", a: ["+", "@", "#", "=", "%"], correct: 3 },
+        { q: "Fungsidari SUM adalah untuk menghitung.....", a: ["Rata-rata", "Mengjumlahkan data", "Nilai tertinggi", "Nilai terendah", "Jumlah data"], correct: 1 },
+        { q: "Fungsi Average digunakan untuk......", a: ["Menghitung jumlah", "Menghitung nilai maksimum", "Menghitung rata-rata", "Menghitung data kosong", "Menghitung nilai minimum"], correct: 2 },
+        { q: "Rumus untuk mencari nilai tertinggi adalah......", a: ["Min", "Sum", "Max", "Count", "If"], correct: 2 },
+        { q: "Rumus untuk menghitung banyak data angka adalah.....", a: ["Min", "Sum", "Max", "Count", "If"], correct: 3 },
+        { q: "Kumpulan dari beberapa sel dalam excel disebut dengan.....", a: ["Cell", "Workbook", "Range", "Sheet", "Formula"], correct: 2 },
+        { q: "Fungsi IF digunakan untuk.....", a: ["Menjumlahkan data", "Make grafik", "Menguji kondisi", "Menghapus data", "Mengurutkan data"], correct: 2 },
+        { q: "Bagian excel yang digunakan untuk menampilkan lembar kerja disebut dengan....", a: ["Cell", "Worksheet", "Range", "Sheet", "Formula"], correct: 1 },
+        { q: "Shortcut ang digunakan untuk menyimpan file di Microsoft Excel adalah.....", a: ["Ctrl + P", "Ctrl + S", "Ctrl + V", "Ctrl + B", "Ctrl + X"], correct: 1 }
+    ];
+
+    let studentName = "";
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    // SISTEM PROTEKSI: CEK APAKAH HP INI SUDAH PERNAH MAIN
+    window.onload = function() {
+        const dataLama = localStorage.getItem("kuis_coding_ai_selesai");
+        if (dataLama) {
+            const dataSiswa = JSON.parse(dataLama);
+            tampilkanHasilAkhir(dataSiswa.nama, dataSiswa.skor);
+        }
+    };
+
+    function changeScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function startQuiz() {
+        const inputName = document.getElementById("student-name-input").value.trim();
+        if (inputName === "") {
+            alert("⚠️ Nama tidak boleh kosong! Silakan masukkan nama kamu.");
+            return;
+        }
+        studentName = inputName;
+        document.getElementById("display-student-name").textContent = studentName;
+        
+        changeScreen("quiz-screen");
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const currentQuestion = quizData[currentQuestionIndex];
+        document.getElementById("question-text").textContent = `${currentQuestionIndex + 1}. ${currentQuestion.q}`;
+        
+        const optionsContainer = document.getElementById("options-text");
+        optionsContainer.innerHTML = "";
+        
+        const labels = ["A", "B", "C", "D", "E"];
+        currentQuestion.a.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.className = "option-btn";
+            button.textContent = `${labels[index]}. ${option}`;
+            button.onclick = () => selectAnswer(index);
+            optionsContainer.appendChild(button);
+        });
+
+        document.getElementById("question-number").textContent = `Soal ${currentQuestionIndex + 1} dari ${quizData.length}`;
+        document.getElementById("current-score").textContent = `Skor: ${score}`;
+    }
+
+    function selectAnswer(selectedIndex) {
+        const currentQuestion = quizData[currentQuestionIndex];
+        if (selectedIndex === currentQuestion.correct) {
+            score += 4; // Total 25 soal x 4 = 100 poin penuh
+            alert("🎉 Jawaban Kamu BENAR!");
+        } else {
+            const correctLabel = ["A", "B", "C", "D", "E"][currentQuestion.correct];
+            alert(`❌ Jawaban Kamu SALAH!\nJawaban yang benar adalah: ${correctLabel}. ${currentQuestion.a[currentQuestion.correct]}`);
+        }
+
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            // SIMPAN DATA KUNCI DI LOCALSTORAGE HP SISWA
+            const dataGame = { nama: studentName, skor: score };
+            localStorage.setItem("kuis_coding_ai_selesai", JSON.stringify(dataGame));
+            
+            tampilkanHasilAkhir(studentName, score);
+        }
+    }
+
+    function tampilkanHasilAkhir(nama, skorAkhir) {
+        document.getElementById("final-student-name").textContent = nama;
+        document.getElementById("final-score-text").textContent = `${skorAkhir} / 100`;
+        
+        let feedback = skorAkhir >= 75 
+            ? "Luar biasa! Kamu sudah menguasai materi Coding dan AI dengan sangat baik. 🚀" 
+            : "Jangan berkecil hati, mari belajar lagi untuk meningkatkan kemampuanmu! 💪";
+        
+        document.getElementById("feedback-text").textContent = feedback;
+        changeScreen("score-screen");
+    }
+</script>
+
+</body>
+</html>
